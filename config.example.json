@@ -1,0 +1,100 @@
+{
+  "leads_csv_path": "leads.csv",
+  "logs_csv_path": "logs/activity_log.csv",
+  "logs_jsonl_path": "logs/activity_log.jsonl",
+  "sent_recipients_path": "logs/sent_recipients.json",
+  "dry_run": true,
+  "total_daily_limit": 250,
+  "delay_min_seconds": 20,
+  "delay_max_seconds": 120,
+  "sender_type_priority": [
+    "zoho",
+    "brevo",
+    "gmail",
+    "outlook"
+  ],
+  "senders": [
+    {
+      "email": "info@asagus.com",
+      "type": "zoho",
+      "daily_limit": 95,
+      "enabled": true,
+      "username": "info@asagus.com",
+      "password_env": "SMTP_INFO_PASSWORD",
+      "from_name": "Asagus"
+    },
+    {
+      "email": "hello@asagus.com",
+      "type": "zoho",
+      "daily_limit": 95,
+      "enabled": true,
+      "username": "hello@asagus.com",
+      "password_env": "SMTP_HELLO_PASSWORD",
+      "from_name": "Asagus"
+    },
+    {
+      "email": "contact@asagus.com",
+      "type": "brevo",
+      "daily_limit": 100,
+      "enabled": true,
+      "username": "apikey",
+      "password_env": "BREVO_SMTP_KEY",
+      "brevo_api_key_env": "BREVO_API_KEY",
+      "from_name": "Asagus"
+    },
+    {
+      "email": "abc@gmail.com",
+      "type": "gmail",
+      "daily_limit": 30,
+      "enabled": true,
+      "username": "abc@gmail.com",
+      "password_env": "GMAIL_ABC_APP_PASSWORD",
+      "from_name": "Asagus"
+    },
+    {
+      "email": "xyz@gmail.com",
+      "type": "gmail",
+      "daily_limit": 30,
+      "enabled": true,
+      "username": "xyz@gmail.com",
+      "password_env": "GMAIL_XYZ_APP_PASSWORD",
+      "from_name": "Asagus"
+    },
+    {
+      "email": "abc@outlook.com",
+      "type": "outlook",
+      "daily_limit": 30,
+      "enabled": true,
+      "username": "abc@outlook.com",
+      "password_env": "OUTLOOK_ABC_PASSWORD",
+      "from_name": "Asagus"
+    }
+  ],
+  "subject_templates": [
+    "Quick note for {business}",
+    "Small idea for your team {city}",
+    "A short question, {name}",
+    "Thought this might help {business}",
+    "One practical suggestion",
+    "A quick hello from our side",
+    "Idea after seeing your work {city}"
+  ],
+  "body_templates": [
+    "Hi {name},\n\n{context_line}\n\nI wanted to share one practical thought for {business} teams {city}.\nIf it helps, I can send a short outline you can review anytime.\n\nBest regards,",
+    "Hello {name},\n\n{context_line}\n\nI work with teams supporting {business}, and I noticed a simple approach that often saves follow-up time {city}.\nHappy to send details if that would be useful.\n\nBest,",
+    "Hi {name},\n\n{context_line}\n\nThis may not be relevant, but we have helped businesses like {business} streamline repetitive outreach tasks {city}.\nI can share a brief example if you are open to it.\n\nRegards,",
+    "Hello {name},\n\n{context_line}\n\nI am reaching out with a small workflow idea that could fit {business} operations {city}.\nWould you like a one-page summary?\n\nThanks,",
+    "Hi {name},\n\n{context_line}\n\nI thought a lightweight automation concept might be useful for your {business} team {city}.\nIf you want, I can send the short version first.\n\nBest regards,",
+    "Hello {name},\n\n{context_line}\n\nA quick note: we have seen {business} teams improve response handling with a few simple process tweaks {city}.\nI can share the checklist if helpful.\n\nRegards,",
+    "Hi {name},\n\n{context_line}\n\nI came across your work and wanted to send one focused suggestion that might support {business} growth {city}.\nHappy to share it in a brief follow-up.\n\nThank you,"
+  ],
+  "ai": {
+    "enabled": false,
+    "provider": "openai_compatible",
+    "endpoint": "https://api.openai.com/v1/chat/completions",
+    "model": "gpt-4o-mini",
+    "api_key_env": "OPENAI_API_KEY",
+    "timeout_seconds": 20,
+    "temperature": 0.7
+  }
+}

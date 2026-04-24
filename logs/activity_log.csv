@@ -1,0 +1,4 @@
+timestamp,recipient_email,sender_email,sender_type,subject,status,error
+2026-04-01T14:21:44.425231+00:00,ali@example.com,hello@asagus.com,zoho,Small idea for your team in Lahore,sent,
+2026-04-01T14:21:44.429313+00:00,owner@example.org,info@asagus.com,zoho,One practical suggestion,sent,
+2026-04-01T14:21:44.432570+00:00,sara@example.net,hello@asagus.com,zoho,"A short question, Sara",sent,

@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Outreach Control Room — Sales Funnel</title>
+    <meta name="description" content="Cold outreach sales funnel dashboard for managing email campaigns, leads, replies, and analytics." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">▲</div>
+        <span class="brand-text">Outreach</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="dashboard" id="navDashboard">
+          <span class="nav-icon">◉</span> Dashboard
+        </button>
+        <button class="nav-item" data-tab="leads" id="navLeads">
+          <span class="nav-icon">☰</span> Leads
+        </button>
+        <button class="nav-item" data-tab="replies" id="navReplies">
+          <span class="nav-item-badge" id="replyBadge" style="display:none">0</span>
+          <span class="nav-icon">✉</span> Replies
+        </button>
+        <button class="nav-item" data-tab="analytics" id="navAnalytics">
+          <span class="nav-icon">◔</span> Analytics
+        </button>
+        <button class="nav-item" data-tab="campaigns" id="navCampaigns">
+          <span class="nav-icon">▶</span> Campaigns
+        </button>
+        <button class="nav-item" data-tab="settings" id="navSettings">
+          <span class="nav-icon">⚙</span> Settings
+        </button>
+      </nav>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+      {% if request.args.get('saved') == '1' %}
+      <div class="toast success" id="toastSaved">Settings saved successfully.</div>
+      {% endif %}
+      {% if request.args.get('upload') == '1' %}
+      <div class="toast success" id="toastUpload">Leads CSV uploaded. {{ request.args.get('imported', '0') }} new leads imported.</div>
+      {% endif %}
+      {% if request.args.get('started') == '1' %}
+      <div class="toast success">Campaign started.</div>
+      {% endif %}
+      {% if request.args.get('stopped') == '1' %}
+      <div class="toast warning">Stop requested. Campaign will end safely.</div>
+      {% endif %}
+
+      <!-- ═══ TAB: Dashboard ═══ -->
+      <section class="tab-panel active" id="tabDashboard">
+        <div class="page-header">
+          <h1>Dashboard</h1>
+          <p class="page-subtitle">Overview of your outreach funnel</p>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <span class="kpi-label">Total Leads</span>
+            <span class="kpi-value" id="kpiLeads">{{ kpis.total_leads or 0 }}</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Emails Sent</span>
+            <span class="kpi-value" id="kpiSent">{{ kpis.total_sent or 0 }}</span>
+          </div>
+          <div class="kpi-card accent">
+            <span class="kpi-label">Replies</span>
+            <span class="kpi-value" id="kpiReplies">{{ kpis.total_replies or 0 }}</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Meetings</span>
+            <span class="kpi-value" id="kpiMeetings">{{ kpis.meetings_booked or 0 }}</span>
+          </div>
+          <div class="kpi-card success">
+            <span class="kpi-label">Deals Won</span>
+            <span class="kpi-value" id="kpiWon">{{ kpis.deals_won or 0 }}</span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h2>Campaign Control</h2>
+            <div class="btn-row">
+              <form method="post" action="/start">
+                <input type="hidden" name="campaign_type" value="initial" />
+                <button class="btn btn-primary" type="submit" id="btnStartInitial">▶ Start Initial</button>
+              </form>
+              <form method="post" action="/start">
+                <input type="hidden" name="campaign_type" value="followup1" />
+                <button class="btn btn-secondary" type="submit" id="btnFollowup1">↻ Follow-up 1</button>
+              </form>
+              <form method="post" action="/start">
+                <input type="hidden" name="campaign_type" value="followup2" />
+                <button class="btn btn-secondary" type="submit" id="btnFollowup2">↻ Follow-up 2</button>
+              </form>
+              <form method="post" action="/stop">
+                <button class="btn btn-danger" type="submit" id="btnStop">■ Stop</button>
+              </form>
+            </div>
+
+            <div class="status-grid" id="statusCards">
+              <div class="metric"><span>Total</span><strong id="metricTotal">{{ status.total_leads or 0 }}</strong></div>
+              <div class="metric"><span>Attempted</span><strong id="metricAttempted">{{ status.attempted or 0 }}</strong></div>
+              <div class="metric"><span>Sent</span><strong id="metricSent">{{ status.sent or 0 }}</strong></div>
+              <div class="metric"><span>Failed</span><strong id="metricFailed">{{ status.failed or 0 }}</strong></div>
+              <div class="metric"><span>Skipped</span><strong id="metricSkipped">{{ status.skipped_duplicates or 0 }}</strong></div>
+              <div class="metric"><span>Running</span><strong id="metricRunning">{{ 'Yes' if status.running else 'No' }}</strong></div>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-label"><span>Progress</span><span id="progressText">0%</span></div>
+              <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+            </div>
+
+            <div class="live-info">
+              <p><b>Status:</b> <span id="statusMessage">{{ status.message }}</span></p>
+              <p><b>Current:</b> <span id="statusRecipient">{{ status.current_recipient or '-' }}</span></p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Funnel Overview</h2>
+            <div class="funnel-chart" id="funnelChart">
+              <div class="funnel-stage"><span class="funnel-label">New</span><div class="funnel-bar" style="width: 100%"><span>{{ funnel.get('new', 0) }}</span></div></div>
+              <div class="funnel-stage"><span class="funnel-label">Contacted</span><div class="funnel-bar bar-contacted" style="width: 80%"><span>{{ funnel.get('contacted', 0) }}</span></div></div>
+              <div class="funnel-stage"><span class="funnel-label">Replied</span><div class="funnel-bar bar-replied" style="width: 50%"><span>{{ funnel.get('replied', 0) }}</span></div></div>
+              <div class="funnel-stage"><span class="funnel-label">Meeting</span><div class="funnel-bar bar-meeting" style="width: 30%"><span>{{ funnel.get('meeting', 0) }}</span></div></div>
+              <div class="funnel-stage"><span class="funnel-label">Proposal</span><div class="funnel-bar bar-proposal" style="width: 20%"><span>{{ funnel.get('proposal', 0) }}</span></div></div>
+              <div class="funnel-stage"><span class="funnel-label">Won</span><div class="funnel-bar bar-won" style="width: 10%"><span>{{ funnel.get('won', 0) }}</span></div></div>
+            </div>
+
+            <div class="rate-row">
+              <div class="rate-item"><span>Delivery</span><strong>{{ kpis.delivery_rate }}%</strong></div>
+              <div class="rate-item"><span>Reply</span><strong>{{ kpis.reply_rate }}%</strong></div>
+              <div class="rate-item"><span>Meeting</span><strong>{{ kpis.meeting_rate }}%</strong></div>
+              <div class="rate-item"><span>Close</span><strong>{{ kpis.close_rate }}%</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Recent Activity</h2>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Time</th><th>Recipient</th><th>Sender</th><th>Status</th><th>Error</th></tr>
+              </thead>
+              <tbody id="logsBody">
+                {% for row in logs %}
+                <tr>
+                  <td>{{ row.timestamp }}</td>
+                  <td>{{ row.recipient_email }}</td>
+                  <td>{{ row.sender_email }}</td>
+                  <td><span class="badge badge-{{ row.status }}">{{ row.status }}</span></td>
+                  <td>{{ row.error }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ TAB: Leads ═══ -->
+      <section class="tab-panel" id="tabLeads">
+        <div class="page-header">
+          <h1>Leads</h1>
+          <p class="page-subtitle">All leads with scores, segments, and funnel stages</p>
+        </div>
+
+        <div class="card">
+          <div class="toolbar">
+            <div class="filter-group">
+              <label>Segment:</label>
+              <select id="filterSegment" class="input-sm">
+                <option value="">All</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+              <label>Stage:</label>
+              <select id="filterStage" class="input-sm">
+                <option value="">All</option>
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="replied">Replied</option>
+                <option value="meeting">Meeting</option>
+                <option value="proposal">Proposal</option>
+                <option value="won">Won</option>
+                <option value="lost">Lost</option>
+              </select>
+              <button class="btn btn-sm" id="btnFilterLeads">Filter</button>
+            </div>
+            <form method="post" action="/upload-leads" enctype="multipart/form-data" class="upload-inline">
+              <input type="file" name="leads_file" accept=".csv" required id="leadsFileInput" />
+              <button class="btn btn-sm btn-secondary" type="submit" id="btnUploadLeads">Upload CSV</button>
+            </form>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table" id="leadsTable">
+              <thead>
+                <tr>
+                  <th>Name</th><th>Email</th><th>Business</th><th>City</th>
+                  <th>Score</th><th>Segment</th><th>Stage</th><th>Niche</th>
+                </tr>
+              </thead>
+              <tbody id="leadsBody">
+                {% for lead in all_leads %}
+                <tr>
+                  <td>{{ lead.name }}</td>
+                  <td>{{ lead.email }}</td>
+                  <td>{{ lead.business }}</td>
+                  <td>{{ lead.city }}</td>
+                  <td><strong>{{ lead.lead_score }}</strong></td>
+                  <td><span class="badge badge-{{ lead.segment }}">{{ lead.segment }}</span></td>
+                  <td><span class="badge badge-stage-{{ lead.funnel_stage }}">{{ lead.funnel_stage }}</span></td>
+                  <td>{{ lead.niche }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ TAB: Replies ═══ -->
+      <section class="tab-panel" id="tabReplies">
+        <div class="page-header">
+          <h1>Replies</h1>
+          <p class="page-subtitle">Manage incoming replies and classify them</p>
+        </div>
+
+        <div class="card">
+          <h2>Log a New Reply</h2>
+          <div class="form-row" id="newReplyForm">
+            <input type="email" placeholder="Lead email" id="replyEmail" class="input-md" />
+            <textarea placeholder="Reply snippet..." id="replyText" rows="2" class="input-md"></textarea>
+            <select id="replyType" class="input-sm">
+              <option value="unclassified">Unclassified</option>
+              <option value="positive">Interested</option>
+              <option value="how_much">How Much?</option>
+              <option value="not_now">Not Now</option>
+              <option value="send_details">Send Details</option>
+              <option value="negative">Negative</option>
+              <option value="wrong_contact">Wrong Contact</option>
+              <option value="unsubscribe">Unsubscribe/STOP</option>
+            </select>
+            <button class="btn btn-primary" id="btnLogReply">Log Reply</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Pending Replies <span class="count-badge" id="pendingCount">{{ pending_replies|length }}</span></h2>
+          <div class="table-wrap">
+            <table class="data-table" id="repliesTable">
+              <thead>
+                <tr>
+                  <th>Lead</th><th>Business</th><th>Snippet</th><th>Type</th><th>Time</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="repliesBody">
+                {% for r in pending_replies %}
+                <tr data-reply-id="{{ r.id }}">
+                  <td>{{ r.lead_name or r.lead_email }}</td>
+                  <td>{{ r.lead_business or '-' }}</td>
+                  <td class="snippet-cell">{{ r.reply_text_snippet[:80] }}</td>
+                  <td><span class="badge badge-reply-{{ r.reply_type }}">{{ r.reply_type }}</span></td>
+                  <td>{{ r.replied_at }}</td>
+                  <td>
+                    <select class="input-xs classify-select">
+                      <option value="">Classify...</option>
+                      <option value="positive">Interested</option>
+                      <option value="how_much">How Much?</option>
+                      <option value="not_now">Not Now</option>
+                      <option value="send_details">Send Details</option>
+                      <option value="negative">Negative</option>
+                      <option value="wrong_contact">Wrong Contact</option>
+                      <option value="unsubscribe">Unsubscribe</option>
+                    </select>
+                    <button class="btn btn-xs btn-primary classify-btn">Save</button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Canned Responses</h2>
+          <div class="canned-list">
+            {% for c in canned_responses %}
+            <div class="canned-item">
+              <span class="canned-trigger badge">{{ c.trigger_type }}</span>
+              <strong>{{ c.title }}</strong>
+              <p>{{ c.response_text }}</p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ TAB: Analytics ═══ -->
+      <section class="tab-panel" id="tabAnalytics">
+        <div class="page-header">
+          <h1>Analytics</h1>
+          <p class="page-subtitle">Performance metrics and KPIs</p>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-card"><span class="kpi-label">Delivery Rate</span><span class="kpi-value">{{ kpis.delivery_rate }}%</span></div>
+          <div class="kpi-card accent"><span class="kpi-label">Reply Rate</span><span class="kpi-value">{{ kpis.reply_rate }}%</span></div>
+          <div class="kpi-card"><span class="kpi-label">Positive Reply Rate</span><span class="kpi-value">{{ kpis.positive_reply_rate }}%</span></div>
+          <div class="kpi-card"><span class="kpi-label">Meeting Rate</span><span class="kpi-value">{{ kpis.meeting_rate }}%</span></div>
+          <div class="kpi-card success"><span class="kpi-label">Close Rate</span><span class="kpi-value">{{ kpis.close_rate }}%</span></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h2>Funnel Breakdown</h2>
+            <div class="funnel-chart">
+              <div class="funnel-stage"><span class="funnel-label">New</span><div class="funnel-bar" style="width:100%"><span>{{ funnel.get('new',0) }}</span></div></div>
+              <div class="funnel-stage"><span class="funnel-label">Contacted</span><div class="funnel-bar bar-contacted" style="width:80%"><span>{{ funnel.get('contacted',0) }}</span></div></div>
+              <div class="funnel-stage"><span class="funnel-label">Replied</span><div class="funnel-bar bar-replied" style="width:50%"><span>{{ funnel.get('replied',0) }}</span></div></div>
+              <div class="funnel-stage"><span class="funnel-label">Meeting</span><div class="funnel-bar bar-meeting" style="width:30%"><span>{{ funnel.get('meeting',0) }}</span></div></div>
+              <div class="funnel-stage"><span class="funnel-label">Proposal</span><div class="funnel-bar bar-proposal" style="width:20%"><span>{{ funnel.get('proposal',0) }}</span></div></div>
+              <div class="funnel-stage"><span class="funnel-label">Won</span><div class="funnel-bar bar-won" style="width:10%"><span>{{ funnel.get('won',0) }}</span></div></div>
+              <div class="funnel-stage"><span class="funnel-label">Lost</span><div class="funnel-bar bar-lost" style="width:8%"><span>{{ funnel.get('lost',0) }}</span></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Summary Numbers</h2>
+            <div class="stat-list">
+              <div class="stat-row"><span>Total Leads</span><strong>{{ kpis.total_leads }}</strong></div>
+              <div class="stat-row"><span>Emails Sent</span><strong>{{ kpis.total_sent }}</strong></div>
+              <div class="stat-row"><span>Failed</span><strong>{{ kpis.total_failed }}</strong></div>
+              <div class="stat-row"><span>Total Replies</span><strong>{{ kpis.total_replies }}</strong></div>
+              <div class="stat-row"><span>Positive Replies</span><strong>{{ kpis.positive_replies }}</strong></div>
+              <div class="stat-row"><span>Meetings Booked</span><strong>{{ kpis.meetings_booked }}</strong></div>
+              <div class="stat-row"><span>Deals Won</span><strong>{{ kpis.deals_won }}</strong></div>
+              <div class="stat-row"><span>Deals Lost</span><strong>{{ kpis.deals_lost }}</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ TAB: Campaigns ═══ -->
+      <section class="tab-panel" id="tabCampaigns">
+        <div class="page-header">
+          <h1>Campaigns</h1>
+          <p class="page-subtitle">Campaign history and status</p>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="data-table" id="campaignsTable">
+              <thead>
+                <tr><th>ID</th><th>Name</th><th>Type</th><th>Status</th><th>Started</th><th>Finished</th></tr>
+              </thead>
+              <tbody id="campaignsBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ TAB: Settings ═══ -->
+      <section class="tab-panel" id="tabSettings">
+        <div class="page-header">
+          <h1>Settings</h1>
+          <p class="page-subtitle">Configure senders, templates, follow-ups, and compliance</p>
+        </div>
+
+        <form method="post" action="/save-settings" class="settings-form" id="settingsForm">
+          <div class="grid-2">
+            <div class="card">
+              <h2>General</h2>
+              <div class="form-stack">
+                <label>Leads CSV Path</label>
+                <input type="text" name="leads_csv_path" value="{{ config.get('leads_csv_path', 'leads.csv') }}" />
+
+                <div class="form-row-2">
+                  <div>
+                    <label>Daily Limit</label>
+                    <input type="number" min="1" name="total_daily_limit" value="{{ config.get('total_daily_limit', 250) }}" />
+                  </div>
+                  <div>
+                    <label>Dry Run</label>
+                    <input type="checkbox" name="dry_run" {% if config.get('dry_run', True) %}checked{% endif %} />
+                  </div>
+                </div>
+
+                <div class="form-row-2">
+                  <div>
+                    <label>Delay Min (sec)</label>
+                    <input type="number" min="0" name="delay_min_seconds" value="{{ config.get('delay_min_seconds', 20) }}" />
+                  </div>
+                  <div>
+                    <label>Delay Max (sec)</label>
+                    <input type="number" min="0" name="delay_max_seconds" value="{{ config.get('delay_max_seconds', 120) }}" />
+                  </div>
+                </div>
+
+                <label>Sender Priority (comma-separated)</label>
+                <input type="text" name="sender_type_priority" value="{{ ','.join(config.get('sender_type_priority', ['zoho','brevo','gmail','outlook'])) }}" />
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Follow-Up & Compliance</h2>
+              <div class="form-stack">
+                <div class="form-row-2">
+                  <div>
+                    <label>Follow-up Enabled</label>
+                    <input type="checkbox" name="follow_up_enabled" {% if config.get('follow_up_enabled', True) %}checked{% endif %} />
+                  </div>
+                  <div>
+                    <label>Follow-up Day 1</label>
+                    <input type="number" min="1" name="follow_up_day_1" value="{{ config.get('follow_up_day_1', 3) }}" />
+                  </div>
+                </div>
+                <div>
+                  <label>Follow-up Day 2</label>
+                  <input type="number" min="1" name="follow_up_day_2" value="{{ config.get('follow_up_day_2', 6) }}" />
+                </div>
+
+                <label>Demo Base URL</label>
+                <input type="text" name="demo_base_url" value="{{ config.get('demo_base_url', '') }}" placeholder="https://demo.asagus.com" />
+
+                <label>Physical Address (Compliance)</label>
+                <input type="text" name="physical_address" value="{{ config.get('physical_address', 'Islamabad, Pakistan') }}" />
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Email Body Templates</h2>
+            <p class="hint">Placeholders: {name}, {business}, {city}, {context_line}, {demo_link}</p>
+            {% for i in range(7) %}
+            <label>Template {{ i + 1 }}</label>
+            <textarea name="body_template_{{ i }}" rows="5" required>{{ body_templates[i] }}</textarea>
+            {% endfor %}
+          </div>
+
+          <div class="card">
+            <h2>Sender Accounts</h2>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Email</th><th>Type</th><th>On</th><th>Limit</th><th>Username</th><th>Pass Env</th><th>From</th></tr>
+                </thead>
+                <tbody>
+                  {% for sender in config.get('senders', []) %}
+                  <tr>
+                    <td>{{ sender.get('email', '') }}</td>
+                    <td>{{ sender.get('type', '') }}</td>
+                    <td><input type="checkbox" name="sender_{{ loop.index0 }}_enabled" {% if sender.get('enabled', True) %}checked{% endif %} /></td>
+                    <td><input type="number" min="1" name="sender_{{ loop.index0 }}_daily_limit" value="{{ sender.get('daily_limit', 1) }}" class="input-xs" /></td>
+                    <td><input type="text" name="sender_{{ loop.index0 }}_username" value="{{ sender.get('username', '') }}" class="input-sm" /></td>
+                    <td><input type="text" name="sender_{{ loop.index0 }}_password_env" value="{{ sender.get('password_env', '') }}" class="input-sm" /></td>
+                    <td><input type="text" name="sender_{{ loop.index0 }}_from_name" value="{{ sender.get('from_name', '') }}" class="input-sm" /></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-lg" type="submit" id="btnSaveSettings">Save All Settings</button>
+        </form>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>

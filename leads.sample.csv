@@ -1,0 +1,9 @@
+name,email,business,city,category,phone,website_exists,reviews_count,social_presence
+Ali Khan,ali@example.com,Khan Auto Repair,Lahore,auto repair,03001234567,false,25,weak
+Sara Ahmed,sara@example.net,Sara's Beauty Salon,Karachi,salon,,false,45,
+Usman Sheikh,usman@example.org,Sheikh Plumbing Services,Islamabad,plumber,03121234567,false,8,none
+Dr Ayesha,ayesha@example.com,Ayesha Dental Clinic,Rawalpindi,dentist,03331234567,false,62,weak
+Hamza Tariq,hamza@example.com,Hamza AC Services,Lahore,hvac,,false,15,
+Bilal Raza,bilal@example.org,Bilal Electricians,Faisalabad,electrician,03451234567,false,3,none
+Fatima Noor,fatima@example.net,Noor Mobile Repair,Multan,mobile repair,,false,30,weak
+Ahmed Hassan,ahmed@example.com,Hassan Car Wash,Islamabad,car detailing,,false,12,
