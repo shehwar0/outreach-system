@@ -303,6 +303,8 @@ def save_settings() -> Any:
     updated_senders = []
     for index, sender in enumerate(senders):
         item = dict(sender)
+        submitted_email = request.form.get(f"sender_{index}_email", str(sender.get("email", ""))).strip().lower()
+        item["email"] = submitted_email or str(sender.get("email", "")).strip().lower()
         item["enabled"] = _as_bool(request.form.get(f"sender_{index}_enabled"))
         item["daily_limit"] = _as_int(request.form.get(f"sender_{index}_daily_limit"), _as_int(sender.get("daily_limit"), 1))
         item["username"] = request.form.get(f"sender_{index}_username", str(sender.get("username", ""))).strip()

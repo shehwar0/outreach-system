@@ -1,5 +1,5 @@
 {
-  "leads_csv_path": "leads.csv",
+  "leads_csv_path": "uploads/20260425_074529_leads_skin_specialist_karachi_1.csv",
   "logs_csv_path": "logs/activity_log.csv",
   "logs_jsonl_path": "logs/activity_log.jsonl",
   "sent_recipients_path": "logs/sent_recipients.json",
@@ -21,19 +21,19 @@
   ],
   "senders": [
     {
-      "email": "info@asagus.com",
+      "email": "mshahwar92@gmail.com",
       "type": "zoho",
       "daily_limit": 95,
-      "enabled": true,
-      "username": "info@asagus.com",
-      "password_env": "SMTP_INFO_PASSWORD",
+      "enabled": false,
+      "username": "mshahwar92@gmail.com",
+      "password_env": "krch mgao jgge socy",
       "from_name": "Asagus"
     },
     {
       "email": "hello@asagus.com",
       "type": "zoho",
       "daily_limit": 95,
-      "enabled": true,
+      "enabled": false,
       "username": "hello@asagus.com",
       "password_env": "SMTP_HELLO_PASSWORD",
       "from_name": "Asagus"
@@ -42,7 +42,7 @@
       "email": "contact@asagus.com",
       "type": "brevo",
       "daily_limit": 100,
-      "enabled": true,
+      "enabled": false,
       "username": "apikey",
       "password_env": "BREVO_SMTP_KEY",
       "brevo_api_key_env": "BREVO_API_KEY",
@@ -52,25 +52,25 @@
       "email": "abc@gmail.com",
       "type": "gmail",
       "daily_limit": 30,
-      "enabled": true,
+      "enabled": false,
       "username": "abc@gmail.com",
       "password_env": "GMAIL_ABC_APP_PASSWORD",
       "from_name": "Asagus"
     },
     {
-      "email": "xyz@gmail.com",
+      "email": "mshahwar92@gmail.com",
       "type": "gmail",
       "daily_limit": 30,
       "enabled": true,
-      "username": "xyz@gmail.com",
-      "password_env": "GMAIL_XYZ_APP_PASSWORD",
+      "username": "mshahwar92@gmail.com",
+      "password_env": "krch mgao jgge socy",
       "from_name": "Asagus"
     },
     {
       "email": "abc@outlook.com",
       "type": "outlook",
       "daily_limit": 30,
-      "enabled": true,
+      "enabled": false,
       "username": "abc@outlook.com",
       "password_env": "OUTLOOK_ABC_PASSWORD",
       "from_name": "Asagus"
@@ -86,13 +86,13 @@
     "One idea for {business} {city}"
   ],
   "body_templates": [
-    "Hi {name},\n\n{context_line}\n\nI noticed {business} does not have a website yet. Most customers {city} search online before choosing a service, and a simple homepage could help you get more calls.\n\nWould it be worth a quick look at how that could work for you?\n\nBest regards,",
-    "Hello {name},\n\n{context_line}\n\nI work with small businesses {city} on getting their first website up. A basic homepage for {business} could help new customers find and trust you more easily.\n\nHappy to share a quick example if you are curious.\n\nBest,",
-    "Hi {name},\n\n{context_line}\n\nI noticed {business} {city} does not seem to have a website yet. In my experience, even a simple one-page site can bring in a few extra calls each week.\n\nWould you be open to seeing how that might look for your business?\n\nRegards,",
-    "Hello {name},\n\n{context_line}\n\nQuick question — have you thought about having a website for {business} {city}? A lot of your competitors already have one, and customers tend to pick businesses they can look up online.\n\nI can show you a short example if you are interested.\n\nThanks,",
-    "Hi {name},\n\n{context_line}\n\nI put together a quick demo homepage for {business} to show what a website could look like for you: {demo_link}\n\nIt is just an example, but it gives you an idea of how customers {city} would find you online.\n\nWorth a look?\n\nBest regards,",
-    "Hello {name},\n\n{context_line}\n\nYour reviews for {business} {city} are impressive. A website would make it even easier for new customers to find you and get in touch directly.\n\nI can share a quick example if you want to see how it would look.\n\nRegards,",
-    "Hi {name},\n\n{context_line}\n\nI came across {business} {city} and noticed you do not have a website yet. I help local businesses get a simple, professional homepage that brings in more calls and bookings.\n\nInterested in seeing a quick example?\n\nThank you,"
+    "Hi {name},\r\n\r\n{context_line}\r\n\r\nI noticed {business} does not have a website yet. Most customers {city} search online before choosing a service, and a simple homepage could help you get more calls.\r\n\r\nWould it be worth a quick look at how that could work for you?\r\n\r\nBest regards,",
+    "Hello {name},\r\n\r\n{context_line}\r\n\r\nI work with small businesses {city} on getting their first website up. A basic homepage for {business} could help new customers find and trust you more easily.\r\n\r\nHappy to share a quick example if you are curious.\r\n\r\nBest,",
+    "Hi {name},\r\n\r\n{context_line}\r\n\r\nI noticed {business} {city} does not seem to have a website yet. In my experience, even a simple one-page site can bring in a few extra calls each week.\r\n\r\nWould you be open to seeing how that might look for your business?\r\n\r\nRegards,",
+    "Hello {name},\r\n\r\n{context_line}\r\n\r\nQuick question \u2014 have you thought about having a website for {business} {city}? A lot of your competitors already have one, and customers tend to pick businesses they can look up online.\r\n\r\nI can show you a short example if you are interested.\r\n\r\nThanks,",
+    "Hi {name},\r\n\r\n{context_line}\r\n\r\nI put together a quick demo homepage for {business} to show what a website could look like for you: {demo_link}\r\n\r\nIt is just an example, but it gives you an idea of how customers {city} would find you online.\r\n\r\nWorth a look?\r\n\r\nBest regards,",
+    "Hello {name},\r\n\r\n{context_line}\r\n\r\nYour reviews for {business} {city} are impressive. A website would make it even easier for new customers to find you and get in touch directly.\r\n\r\nI can share a quick example if you want to see how it would look.\r\n\r\nRegards,",
+    "Hi {name},\r\n\r\n{context_line}\r\n\r\nI came across {business} {city} and noticed you do not have a website yet. I help local businesses get a simple, professional homepage that brings in more calls and bookings.\r\n\r\nInterested in seeing a quick example?\r\n\r\nThank you,"
   ],
   "ai": {
     "enabled": false,

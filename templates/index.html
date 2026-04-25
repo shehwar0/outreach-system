@@ -461,7 +461,7 @@
                 <tbody>
                   {% for sender in config.get('senders', []) %}
                   <tr>
-                    <td>{{ sender.get('email', '') }}</td>
+                    <td><input type="email" name="sender_{{ loop.index0 }}_email" value="{{ sender.get('email', '') }}" class="input-sm" /></td>
                     <td>{{ sender.get('type', '') }}</td>
                     <td><input type="checkbox" name="sender_{{ loop.index0 }}_enabled" {% if sender.get('enabled', True) %}checked{% endif %} /></td>
                     <td><input type="number" min="1" name="sender_{{ loop.index0 }}_daily_limit" value="{{ sender.get('daily_limit', 1) }}" class="input-xs" /></td>
